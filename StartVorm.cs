@@ -1,13 +1,24 @@
+using Microsoft.VisualBasic;
+using System.ComponentModel.Design;
+using System.Data;
+
 namespace Elemendid_vormis_TARpv23
 {
     public partial class StartVorm : Form
     {
-        List<string> elemendid = new List<string> { "Nupp","Silt","Pilt","Märkeruut"};
+        List<string> elemendid = new List<string> { "Nupp","Silt","Pilt","Märkeruut","Raadionupp", "Tekstikast","Loetelu","Tabel","Dialoogi aknad"};
+        List<string> rbtn_list = new List<string> { "Üks", "Kaks", "Kolm" };
+        
         TreeView tree;
         Button btn;
         Label lbl;
         PictureBox pbox;
         CheckBox chk1,chk2;
+        RadioButton rbtn, rbtn1, rbtn2;
+        TextBox txt;
+        ListBox lb;
+        DataSet ds;
+        DataGridView dg;
         public StartVorm()
         {
             this.Height = 500;
@@ -34,7 +45,7 @@ namespace Elemendid_vormis_TARpv23
             //silt-label
             lbl = new Label();
             lbl.Text = "Aknade elemendid c# abil";
-            lbl.Font=new Font("Arial", 30, FontStyle.Underline);
+            lbl.Font=new Font("Arial", 26, FontStyle.Underline);
             lbl.Size=new Size(520,50);
             lbl.Location = new Point(150, 0);
             lbl.MouseHover += Lbl_MouseHover;
@@ -115,8 +126,130 @@ namespace Elemendid_vormis_TARpv23
 
                 Controls.Add(chk1);
                 Controls.Add(chk2);
-            }            
+            }   
+            else if(e.Node.Text=="Raadionupp")
+            {
+                //1.variant
+                rbtn1 = new RadioButton();
+                rbtn1.Text = "Must teema";
+                rbtn1.Location = new Point(150, 420);
+                rbtn2 = new RadioButton();
+                rbtn2.Text = "Valge teema";
+                rbtn2.Location = new Point(150, 440);
+                this.Controls.Add(rbtn1);
+                this.Controls.Add(rbtn2);
+                rbtn1.CheckedChanged += new EventHandler(Rbtn_Checked);
+                rbtn2.CheckedChanged += new EventHandler(Rbtn_Checked);
+                //2.variant
+                int x = 20;
+                for (int i = 0; i < rbtn_list.Count; i++)
+                {
+                    rbtn = new RadioButton();
+                    rbtn.Checked = false;
+                    rbtn.Text = rbtn_list[i];
+                    rbtn.Height = x;
+                    x=x+20;
+                    rbtn.Location = new Point(150, btn.Height + lbl.Height + pbox.Height + chk1.Height + chk2.Height + rbtn.Height);
+                    rbtn.CheckedChanged += new EventHandler(Btn_CheckedChanged);
+                    
+                    Controls.Add(rbtn);
+                }
+            }
+            else if(e.Node.Text== "Tekstikast")
+            {
+                txt=new TextBox();
+                txt.Location = new Point(150+btn.Width+5,btn.Height);
+                txt.Font = new Font("Arial", 12);
+                txt.Width = 200;
+                txt.TextChanged += Txt_TextChanged;
+                Controls.Add(txt);
+            }
+            else if(e.Node.Text== "Loetelu")
+            {
+                lb=new ListBox();
+                foreach (string item in rbtn_list)
+                {
+                    lb.Items.Add(item);
+                }
+                lb.Height = 30;
+                lb.Location = new Point(160 + btn.Width + txt.Width, btn.Height);
+                lb.SelectedIndexChanged += Lb_SelectedIndexChanged;
+                Controls.Add(lb);
+            }
+            else if (e.Node.Text == "Tabel")
+            {
+                ds=new DataSet("XML fail");
+                ds.ReadXml(@"..\..\..\menu.xml");
+                dg=new DataGridView();
+                dg.Location = new Point(160 + chk1.Width, txt.Height + lbl.Height + 10);
+                dg.DataSource = ds;
+                dg.DataMember = "food";
+                dg.RowHeaderMouseClick += Dg_RowHeaderMouseClick;
+                Controls.Add(dg);
+            }
+            else if (e.Node.Text == "Dialoogi aknad")
+            {
+                MessageBox.Show("Dialoog", "See on lihtne aken");
+                var vastus=MessageBox.Show("Sisestame andmed","Kas tahad InputBoxi kasutada?",MessageBoxButtons.YesNo,MessageBoxIcon.Question);
+                if (vastus==DialogResult.Yes)
+                {
+                    string text = Interaction.InputBox("Sisesta midagi siia", "andmete sisestamine");
+                    Random random = new Random();
+                    DataRow dr = ds.Tables["food"].NewRow();
+                    dr["name"] = text;
+                    dr["price"] = "$"+(random.NextSingle()*10).ToString();
+                    dr["description"] = "Väga maitsev ";
+                    dr["calories"] = random.Next(10,1000);
+                    
+                    ds.Tables["food"].Rows.Add(dr);
+                    if (ds == null) { return; }
+                    ds.WriteXml(@"..\..\..\menu.xml");
+                    MessageBox.Show("Oli sisestatud "+text);
+                }
+            }
         }
+        
+        private void Dg_RowHeaderMouseClick(object? sender, DataGridViewCellMouseEventArgs e)
+        {
+            txt.Text = dg.Rows[e.RowIndex].Cells[0].Value.ToString()+" hind "+ dg.Rows[e.RowIndex].Cells[1].Value.ToString();
+             
+        }
+
+        private void Lb_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            switch (lb.SelectedIndex) 
+            { 
+                case 0:tree.BackColor = Color.Chocolate; break;
+                case 1:tree.BackColor = Color.IndianRed;break;
+                case 2:tree.BackColor = Color.Lavender; break;
+            }
+        }
+
+        private void Txt_TextChanged(object? sender, EventArgs e)
+        {
+            lbl.Text = txt.Text;
+        }
+
+        private void Rbtn_Checked(object? sender, EventArgs e)
+        {
+            if (rbtn1.Checked)
+            {
+                this.BackColor = Color.Black;
+                this.ForeColor = Color.White;
+            }
+            else if (rbtn2.Checked)
+            {
+                this.BackColor = Color.White;
+                this.ForeColor=Color.Black;
+            }
+        }
+
+        private void Btn_CheckedChanged(object? sender, EventArgs e)
+        {
+            RadioButton rb = (RadioButton)sender;
+            lbl.Text = rb.Text;
+        }
+
         private void Chk_CheckedChanged(object? sender, EventArgs e)
         {
             if (chk1.Checked && chk2.Checked) 
