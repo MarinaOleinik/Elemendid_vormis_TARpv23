@@ -91,6 +91,8 @@ namespace Elemendid_vormis_TARpv23
             {
                 btn.BackColor = Color.White;
             }
+            TeineVorm teineVorm = new TeineVorm(200,200);
+            teineVorm.Show();
         }
         private void Tree_AfterSelect(object? sender, TreeViewEventArgs e)
         {
