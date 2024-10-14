@@ -12,6 +12,9 @@ namespace Elemendid_vormis_TARpv23
 {
     public partial class TeineVorm : Form
     {
+
+        
+
         public TeineVorm(int w,int h)
         {
             this.Width = w;

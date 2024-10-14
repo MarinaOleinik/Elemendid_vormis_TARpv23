@@ -52,4 +52,10 @@
     <description>Väga maitsev </description>
     <calories>226</calories>
   </food>
+  <food>
+    <name />
+    <price>$3,009249</price>
+    <description>Väga maitsev </description>
+    <calories>674</calories>
+  </food>
 </breakfast_menu>

@@ -1,6 +1,9 @@
 using Microsoft.VisualBasic;
 using System.ComponentModel.Design;
 using System.Data;
+using System.Windows.Forms;
+using Timer = System.Windows.Forms.Timer;
+
 
 namespace Elemendid_vormis_TARpv23
 {
@@ -12,6 +15,7 @@ namespace Elemendid_vormis_TARpv23
         TreeView tree;
         Button btn;
         Label lbl;
+        
         PictureBox pbox;
         CheckBox chk1,chk2;
         RadioButton rbtn, rbtn1, rbtn2;
@@ -19,11 +23,13 @@ namespace Elemendid_vormis_TARpv23
         ListBox lb;
         DataSet ds;
         DataGridView dg;
+        
         public StartVorm()
         {
             this.Height = 500;
             this.Width = 700;
             this.Text = "Vorm elementidega";
+            this.BackColor = Color.IndianRed;
             tree=new TreeView();
             tree.Dock = DockStyle.Left;
             tree.AfterSelect += Tree_AfterSelect;
@@ -45,20 +51,92 @@ namespace Elemendid_vormis_TARpv23
             //silt-label
             lbl = new Label();
             lbl.Text = "Aknade elemendid c# abil";
-            lbl.Font=new Font("Arial", 26, FontStyle.Underline);
+            lbl.Font=new Font("Arial", 10, FontStyle.Underline);
+            lbl.TextAlign=ContentAlignment.MiddleLeft;
             lbl.Size=new Size(520,50);
             lbl.Location = new Point(150, 0);
             lbl.MouseHover += Lbl_MouseHover;
             lbl.MouseLeave += Lbl_MouseLeave;
-
+            
             pbox = new PictureBox();
             pbox.Size = new Size(60, 60);
             pbox.Location = new Point(150, btn.Height + lbl.Height + 5);
             pbox.SizeMode = PictureBoxSizeMode.Zoom;
             pbox.Image = Image.FromFile(@"..\..\..\ratas.png");
             pbox.DoubleClick += Pbox_DoubleClick;
+            pbox.MouseHover += Pbox_MouseHover;
+            
+            //MainMenu menu = new MainMenu();
+            //MenuItem menuFile = new MenuItem("File");
+            //menuFile.MenuItems.Add("Exit", new EventHandler(menuFile_Exit_Select));
+            //menu.MenuItems.Add(menuFile);
+            //this.Menu = menu;
+            
+            MenuStrip ms=new MenuStrip();
+            ToolStripMenuItem windowMenu = new ToolStripMenuItem("Window");
+            ToolStripMenuItem windowNewMenu = new ToolStripMenuItem("New", null, new EventHandler(windowNewMenu_Click));
+            ToolStripMenuItem windowCloseMenu = new ToolStripMenuItem("Close", null, new EventHandler(windowCloseMenu_Click));
+            ToolStripMenuItem windowTimerMenu = new ToolStripMenuItem("Timer", null, new EventHandler(windowTimerMenu_Click));
+            windowMenu.DropDownItems.Add(windowNewMenu);
+            windowMenu.DropDownItems.Add(windowCloseMenu);
+            windowMenu.DropDownItems.Add(windowTimerMenu);
+            ms.Items.Add(windowMenu);
+            ms.Dock = DockStyle.Right;
+            MainMenuStrip = ms;
+            Controls.Add(ms);
 
         }
+        private void Pbox_MouseHover(object? sender, EventArgs e)
+        {
+            Bitmap sepiaEffect = (Bitmap)pbox.Image.Clone();
+            for (int y = 0; y < sepiaEffect.Height; y++)
+            {
+                for (int x = 0; x < sepiaEffect.Width; x++)
+                {
+                    Color color = sepiaEffect.GetPixel(x, y);
+                    double grayColor = ((double)(color.R + color.G + color.B)) / 3.0d;
+                    Color sepia = Color.FromArgb((byte)grayColor, (byte)(grayColor * 0.95), (byte)(grayColor * 0.82));
+                    sepiaEffect.SetPixel(x, y, sepia);
+                }
+            }
+            pbox.Image = sepiaEffect;
+        }
+
+        private void windowTimerMenu_Click(object? sender, EventArgs e)
+        {
+            Timer timer = new Timer();
+            timer.Interval = 1;
+            timer.Tick += Timer_Tick;
+            timer.Start();
+        }
+        int k;
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            k++;
+            MessageBox.Show(k.ToString());
+        }
+
+        private void windowCloseMenu_Click(object? sender, EventArgs e)
+        {
+            this.Close();
+        }
+        private void windowNewMenu_Click(object? sender, EventArgs e)
+        {
+            ColorDialog cd = new ColorDialog();
+            cd.AllowFullOpen = true;
+            
+            if (cd.ShowDialog() == DialogResult.OK)
+            {
+                this.BackColor = cd.Color;
+            }
+            
+
+        }
+        private void menuFile_Exit_Select(object? sender, EventArgs e)
+        {
+            this.Close();
+        }
+
         int tt = 0;
         private void Pbox_DoubleClick(object? sender, EventArgs e)
         {
@@ -102,6 +180,8 @@ namespace Elemendid_vormis_TARpv23
             }
             else if(e.Node.Text=="Silt")
             {
+                
+                lbl.BackColor=Color.Transparent;
                 Controls.Add(lbl);
             }
             else if (e.Node.Text=="Pilt")
@@ -230,6 +310,7 @@ namespace Elemendid_vormis_TARpv23
         private void Txt_TextChanged(object? sender, EventArgs e)
         {
             lbl.Text = txt.Text;
+            
         }
 
         private void Rbtn_Checked(object? sender, EventArgs e)
